@@ -1,0 +1,22 @@
+###############################################################################
+# Ficheros GENERADOS por make. No se suben nunca: los reconstruye cada uno al
+# compilar, y versionarlos provoca conflictos en cada pull.
+###############################################################################
+
+# Generados por flex y bison
+alex.c
+asin.c
+asin.h
+include/asin.h
+
+# Codigo objeto y ejecutable
+*.o
+cmc
+
+# Informes de bison (--report)
+*.output
+
+# Copias de seguridad de editores
+*~
+*.?~
+.*.swp
