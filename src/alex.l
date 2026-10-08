@@ -9,6 +9,8 @@
 #include "asin.h"
 
 int ultimoToken = 0;
+static int parenDepth = 0;
+static int callDepth[100];
 
 #define DEVUELVE(tok) { if (verbosidad) ECHO; ultimoToken = (tok); return (tok); }
 %}
@@ -35,7 +37,17 @@ int ultimoToken = 0;
 
 [0-9]+\.[0-9]*  { yylval.cent = atoi(yytext); DEVUELVE(CTE_); }
 \.[0-9]+        { yylval.cent = 0; DEVUELVE(CTE_); }
-[0-9]+,[0-9]+   { yylval.cent = atoi(yytext); DEVUELVE(CTE_); }
+[0-9]+,[0-9]+   {
+                  if ((parenDepth > 0 && callDepth[parenDepth]) || ultimoToken == COMA_) {
+                    char *c = strchr(yytext, ',');
+                    yyless(c - yytext);
+                    yylval.cent = atoi(yytext);
+                    DEVUELVE(CTE_);
+                  } else {
+                    yylval.cent = atoi(yytext);
+                    DEVUELVE(CTE_);
+                  }
+                }
 ,[0-9]+         {
                   if (ultimoToken == ID_ || ultimoToken == CTE_ || 
                       ultimoToken == TRUE_ || ultimoToken == FALSE_ || 
@@ -63,7 +75,16 @@ int ultimoToken = 0;
   /* ======================================================================= */
   /* BLOQUE 4: Entrada/Salida, operadores aritmeticos y delimitadores        */
   /* ======================================================================= */
- 
+  
+"("             {
+                  if (parenDepth < 99) parenDepth++;
+                  callDepth[parenDepth] = (ultimoToken == ID_);
+                  DEVUELVE(AP_);
+                }
+")"             {
+                  if (parenDepth > 0) parenDepth--;
+                  DEVUELVE(CP_);
+                }
 
 .               { yyerror("Caracter desconocido"); }
 
